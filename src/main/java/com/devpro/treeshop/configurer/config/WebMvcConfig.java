@@ -1,6 +1,9 @@
-package com.devpro.treeshop.configurer;
+package com.devpro.treeshop.configurer.config;
 
+import com.devpro.treeshop.interceptor.AdminAuthInterceptor;
+import com.devpro.treeshop.interceptor.ClientAuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.ViewResolver;
@@ -10,11 +13,34 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private AdminAuthInterceptor adminAuthInterceptor;
+
+    @Autowired
+    private ClientAuthInterceptor clientAuthInterceptor;
+
+    @Value("${file.upload-dir:src/main/resources/static/uploads/}")
+    private String uploadDir;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(adminAuthInterceptor)
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login");
+
+        registry.addInterceptor(clientAuthInterceptor)
+                .addPathPatterns("/client/**");
+    }
+
     @Bean
     public ViewResolver viewResolver() {
-        final InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(JstlView.class);
         viewResolver.setPrefix("/WEB-INF/view/");
         viewResolver.setSuffix(".jsp");
@@ -23,20 +49,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/client/**").addResourceLocations("/resources/client/");
-        registry.addResourceHandler("/admin/**").addResourceLocations("/resources/admin/");
-        registry.addResourceHandler("/admin/img/**").addResourceLocations("/resources/admin/img/");
-        registry.addResourceHandler("/client/img/**").addResourceLocations("/resources/client/img/");
-        registry.addResourceHandler("/images/**").addResourceLocations("/resources/images/");
-    }
-    @Autowired
-    private AdminInterceptor adminInterceptor;
+        registry.addResourceHandler("/resources/**")
+                .addResourceLocations("/resources/");
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(adminInterceptor)
-                .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/login");
-    }
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("/resources/images/");
 
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(uploadPath.toUri().toString());
+
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/",
+                        "classpath:/public/",
+                        "classpath:/resources/");
+    }
 }

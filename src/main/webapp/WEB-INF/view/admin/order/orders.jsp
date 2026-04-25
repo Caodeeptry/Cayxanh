@@ -1,217 +1,110 @@
-<!-- directive của JSTL -->
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-
-<%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Đơn hàng - Cây Xanh</title>
+    <title>Quản lý đơn hàng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./admincss/orders.css">
-    <style>
-
-    </style>
+    <link rel="stylesheet" href="<c:url value='/resources/admin/admincss/orders.css'/>">
+    <link rel="stylesheet" href="<c:url value='/resources/admin/admincss/admin-shared.css'/>">
 </head>
 <body>
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="brand">
-        <h4 class="mb-0">
-            <i class="fas fa-leaf me-2"></i>
-            TREESHOP
-        </h4>
-        <small class="text-white-50">Admin Panel</small>
-    </div>
+<jsp:include page="/WEB-INF/view/common/admin-sidebar.jsp"><jsp:param name="active" value="orders"/></jsp:include>
 
-    <nav class="nav flex-column mt-4">
-        <a href="./admin.html" class="nav-link">
-            <i class="fas fa-tachometer-alt"></i>
-            Dashboard
-        </a>
-
-        <div class="px-3 mt-3 mb-2 text-white-50 small fw-bold">QUẢN LÝ</div>
-
-        <a href="./adminproduct.html" class="nav-link">
-            <i class="fas fa-tree"></i>
-            Sản phẩm
-        </a>
-
-        <a href="./admincategories.html" class="nav-link">
-            <i class="fas fa-list"></i>
-            Danh mục
-        </a>
-
-        <a href="./adminorders.html" class="nav-link active">
-            <i class="fas fa-shopping-cart"></i>
-            Đơn hàng
-        </a>
-
-        <a href="./adminusers.html" class="nav-link">
-            <i class="fas fa-users"></i>
-            Người dùng
-        </a>
-
-        <div class="px-3 mt-3 mb-2 text-white-50 small fw-bold">NỘI DUNG</div>
-
-        <a href="admin-blogs.html" class="nav-link">
-            <i class="fas fa-blog"></i>
-            Bài viết
-        </a>
-
-        <a href="admin-contacts.html" class="nav-link">
-            <i class="fas fa-envelope"></i>
-            Liên hệ
-        </a>
-    </nav>
-</div>
-
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Header -->
     <div class="page-header">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="mb-1 fw-bold">
-                    <i class="fas fa-shopping-cart me-2 text-success"></i>
-                    Quản lý Đơn hàng
-                </h3>
-                <p class="text-muted mb-0">Quản lý và theo dõi đơn hàng của khách hàng</p>
-            </div>
-            <div class="col-auto">
-                <div class="btn-group">
-                    <button class="btn btn-outline-success">
-                        <i class="fas fa-download me-2"></i>Xuất Excel
-                    </button>
-                </div>
-            </div>
+        <div class="row align-items-center g-3">
+            <div class="col"><h3 class="mb-1 fw-bold">Quản lý đơn hàng</h3><p class="text-muted mb-0">Đã có lọc trạng thái và phân trang thật.</p></div>
         </div>
     </div>
 
-    <!-- Order Stats -->
     <div class="row g-3 mb-4">
-        <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-custom text-center p-3">
-                <div class="text-primary fw-bold fs-4">0</div>
-                <div class="text-muted small">Tổng đơn hàng</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-custom text-center p-3">
-                <div class="text-warning fw-bold fs-4">0</div>
-                <div class="text-muted small">Chờ xác nhận</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-custom text-center p-3">
-                <div class="text-info fw-bold fs-4">0</div>
-                <div class="text-muted small">Đang xử lý</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-custom text-center p-3">
-                <div class="text-primary fw-bold fs-4">0</div>
-                <div class="text-muted small">Đang giao hàng</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-custom text-center p-3">
-                <div class="text-success fw-bold fs-4">0</div>
-                <div class="text-muted small">Đã giao</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-custom text-center p-3">
-                <div class="text-danger fw-bold fs-4">0</div>
-                <div class="text-muted small">Đã hủy</div>
-            </div>
-        </div>
+        <div class="col-md-2"><div class="card-custom text-center p-3"><div class="fw-bold fs-4 text-primary">${totalOrders}</div><small>Tổng đơn</small></div></div>
+        <div class="col-md-2"><div class="card-custom text-center p-3"><div class="fw-bold fs-4 text-warning">${pendingOrders}</div><small>Chờ xử lý</small></div></div>
+        <div class="col-md-2"><div class="card-custom text-center p-3"><div class="fw-bold fs-4 text-info">${shippingOrders}</div><small>Đang giao</small></div></div>
+        <div class="col-md-2"><div class="card-custom text-center p-3"><div class="fw-bold fs-4 text-success">${deliveredOrders}</div><small>Đã giao</small></div></div>
+        <div class="col-md-2"><div class="card-custom text-center p-3"><div class="fw-bold fs-4 text-danger">${cancelledOrders}</div><small>Đã hủy</small></div></div>
+        <div class="col-md-2"><div class="card-custom text-center p-3"><div class="fw-bold fs-6 text-success"><fmt:formatNumber value='${paidRevenue}' type='number' maxFractionDigits='0'/> ₫</div><small>Doanh thu</small></div></div>
     </div>
 
-    <!-- Filters -->
-    <div class="card-custom">
+    <div class="card-custom mb-4">
         <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm đơn hàng...">
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="pending">Chờ xác nhận</option>
-                        <option value="confirmed">Đã xác nhận</option>
-                        <option value="shipping">Đang giao hàng</option>
-                        <option value="delivered">Đã giao</option>
-                        <option value="cancelled">Đã hủy</option>
+            <form class="row g-3" method="get" action="/admin/orders">
+                <div class="col-md-5">
+                    <select class="form-select" name="status">
+                        <option value="">Tất cả trạng thái đơn</option>
+                        <option value="pending" ${currentStatus == 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="confirmed" ${currentStatus == 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                        <option value="shipping" ${currentStatus == 'shipping' ? 'selected' : ''}>Shipping</option>
+                        <option value="delivered" ${currentStatus == 'delivered' ? 'selected' : ''}>Delivered</option>
+                        <option value="cancelled" ${currentStatus == 'cancelled' ? 'selected' : ''}>Cancelled</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option value="">Tất cả thanh toán</option>
-                        <option value="pending">Chờ thanh toán</option>
-                        <option value="paid">Đã thanh toán</option>
-                        <option value="failed">Thanh toán thất bại</option>
+                <div class="col-md-5">
+                    <select class="form-select" name="paymentStatus">
+                        <option value="">Tất cả trạng thái thanh toán</option>
+                        <option value="pending" ${currentPaymentStatus == 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="paid" ${currentPaymentStatus == 'paid' ? 'selected' : ''}>Paid</option>
+                        <option value="failed" ${currentPaymentStatus == 'failed' ? 'selected' : ''}>Failed</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <input type="date" class="form-control" placeholder="Từ ngày">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100">
-                        <i class="fas fa-filter me-2"></i>Lọc
-                    </button>
-                </div>
-            </div>
+                <div class="col-md-2 d-grid"><button class="btn btn-outline-success">Lọc</button></div>
+            </form>
         </div>
     </div>
 
-    <!-- Orders Table -->
     <div class="card-custom">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 align-middle">
                     <thead>
                     <tr>
-                        <th width="120">Mã đơn</th>
+                        <th>#</th>
                         <th>Khách hàng</th>
-                        <th>Số điện thoại</th>
                         <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
+                        <th>Sản phẩm</th>
+                        <th>Trạng thái đơn</th>
                         <th>Thanh toán</th>
-                        <th>Ngày đặt</th>
-                        <th width="150" class="text-center">Thao tác</th>
+                        <th class="text-center">Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
-
+                    <c:forEach var="order" items="${orders}" varStatus="loop">
+                        <tr>
+                            <td>${loop.index + 1 + currentPage * ordersPage.size}</td>
+                            <td>${order.user.fullName}</td>
+                            <td class="text-success fw-bold"><fmt:formatNumber value="${order.totalPrice}" type="number" maxFractionDigits="0"/> ₫</td>
+                            <td>${order.totalProduct}</td>
+                            <td><span class="badge bg-light text-dark">${order.status}</span></td>
+                            <td><span class="badge ${order.paymentStatus == 'paid' ? 'bg-success' : (order.paymentStatus == 'failed' ? 'bg-danger' : 'bg-warning text-dark')}">${order.paymentStatus}</span></td>
+                            <td class="text-center">
+                                <a href="/admin/orders/${order.id}" class="btn btn-sm btn-outline-primary"><i class="fa-regular fa-eye"></i></a>
+                                <a href="/admin/orders/edit/${order.id}" class="btn btn-sm btn-outline-warning"><i class="fa-regular fa-pen-to-square"></i></a>
+                                <a href="/admin/orders/delete/${order.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xóa đơn hàng #${order.id}?')"><i class="fa-regular fa-trash-can"></i></a>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    <c:if test="${empty orders}"><tr><td colspan="7" class="text-center py-4 text-muted">Không có đơn hàng phù hợp.</td></tr></c:if>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center mt-4">
-            <li class="page-item disabled">
-                <a class="page-link" href="#">Trước</a>
-            </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#">Sau</a>
-            </li>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item ${ordersPage.first ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage - 1}&status=${currentStatus}&paymentStatus=${currentPaymentStatus}">Trước</a></li>
+            <c:forEach begin="0" end="${ordersPage.totalPages - 1}" var="i">
+                <li class="page-item ${i == currentPage ? 'active' : ''}"><a class="page-link" href="?page=${i}&status=${currentStatus}&paymentStatus=${currentPaymentStatus}">${i + 1}</a></li>
+            </c:forEach>
+            <li class="page-item ${ordersPage.last ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage + 1}&status=${currentStatus}&paymentStatus=${currentPaymentStatus}">Sau</a></li>
         </ul>
     </nav>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

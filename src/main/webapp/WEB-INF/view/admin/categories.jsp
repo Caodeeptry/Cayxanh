@@ -1,361 +1,144 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!-- directive của JSTL -->
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-
-<%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Danh mục - Cây Xanh</title>
+    <title>Quản lý danh mục</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./admincss/categories.css">
-    <style>
-
-    </style>
+    <link rel="stylesheet" href="<c:url value='/resources/admin/admincss/categories.css'/>">
+    <link rel="stylesheet" href="<c:url value='/resources/admin/admincss/admin-shared.css'/>">
 </head>
 <body>
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="brand">
-        <h4 class="mb-0">
-            <i class="fas fa-leaf me-2"></i>
-            TREESHOP
-        </h4>
-        <small class="text-white-50">Admin Panel</small>
+<jsp:include page="/WEB-INF/view/common/admin-sidebar.jsp"><jsp:param name="active" value="categories"/></jsp:include>
+
+<div class="main-content">
+    <div class="page-header">
+        <div class="row align-items-center g-3">
+            <div class="col"><h3 class="fw-bold mb-1">Quản lý danh mục</h3><p class="text-muted mb-0">Danh mục giờ được quản lý riêng, không còn là trang tĩnh.</p></div>
+            <div class="col-auto"><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fas fa-plus me-2"></i>Thêm danh mục</button></div>
+        </div>
     </div>
 
-    <nav class="nav flex-column mt-4">
-        <a href="./admin.html" class="nav-link">
-            <i class="fas fa-tachometer-alt"></i>
-            Dashboard
-        </a>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="card-custom p-4 text-center"><div class="fs-3 fw-bold text-success">${totalCategories}</div><div class="text-muted">Tổng danh mục</div></div></div>
+        <div class="col-md-4"><div class="card-custom p-4 text-center"><div class="fs-3 fw-bold text-primary">${activeCategories}</div><div class="text-muted">Đang hoạt động</div></div></div>
+        <div class="col-md-4"><div class="card-custom p-4 text-center"><div class="fs-3 fw-bold text-warning">${categoriesPage.totalElements}</div><div class="text-muted">Kết quả hiện tại</div></div></div>
+    </div>
 
-        <div class="px-3 mt-3 mb-2 text-white-50 small fw-bold">QUẢN LÝ</div>
+    <c:if test="${not empty successMessage}"><div class="alert alert-success">${successMessage}</div></c:if>
+    <c:if test="${not empty errorMessage}"><div class="alert alert-danger">${errorMessage}</div></c:if>
 
-        <a href="./adminproduct.html" class="nav-link">
-            <i class="fas fa-tree"></i>
-            Sản phẩm
-        </a>
+    <div class="card-custom mb-4">
+        <div class="card-body">
+            <form class="row g-3" method="get" action="/admin/categories">
+                <div class="col-md-10"><input type="text" class="form-control" name="keyword" value="${keyword}" placeholder="Tìm theo tên danh mục..."></div>
+                <div class="col-md-2 d-grid"><button class="btn btn-outline-success">Tìm kiếm</button></div>
+            </form>
+        </div>
+    </div>
 
-        <a href="./admincategories.html" class="nav-link active">
-            <i class="fas fa-list"></i>
-            Danh mục
-        </a>
+    <div class="card-custom">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tên danh mục</th>
+                        <th>Mô tả</th>
+                        <th>Sản phẩm</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach var="item" items="${categories}" varStatus="loop">
+                        <tr>
+                            <td>${loop.index + 1 + currentPage * categoriesPage.size}</td>
+                            <td class="fw-semibold">${item.name}</td>
+                            <td>${item.description}</td>
+                            <td><span class="badge bg-light text-dark">${categoryProductCounts[item.name]}</span></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${item.active}"><span class="badge bg-success">Hoạt động</span></c:when>
+                                    <c:otherwise><span class="badge bg-secondary">Ẩn</span></c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCategoryModal"
+                                        data-id="${item.id}" data-name="${item.name}" data-description="${item.description}" data-active="${item.active}">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <form action="/admin/categories/delete/${item.id}" method="post" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Xóa danh mục ${item.name}?')"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    <c:if test="${empty categories}"><tr><td colspan="6" class="text-center py-4 text-muted">Chưa có danh mục phù hợp.</td></tr></c:if>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-        <a href="./adminorders.html" class="nav-link">
-            <i class="fas fa-shopping-cart"></i>
-            Đơn hàng
-        </a>
-
-        <a href="./adminusers.html" class="nav-link">
-            <i class="fas fa-users"></i>
-            Người dùng
-        </a>
-
-        <div class="px-3 mt-3 mb-2 text-white-50 small fw-bold">NỘI DUNG</div>
-
-        <a href="admin-blogs.html" class="nav-link">
-            <i class="fas fa-blog"></i>
-            Bài viết
-        </a>
-
-        <a href="admin-contacts.html" class="nav-link">
-            <i class="fas fa-envelope"></i>
-            Liên hệ
-        </a>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item ${categoriesPage.first ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage - 1}&keyword=${keyword}">Trước</a></li>
+            <c:forEach begin="0" end="${categoriesPage.totalPages - 1}" var="i">
+                <li class="page-item ${i == currentPage ? 'active' : ''}"><a class="page-link" href="?page=${i}&keyword=${keyword}">${i + 1}</a></li>
+            </c:forEach>
+            <li class="page-item ${categoriesPage.last ? 'disabled' : ''}"><a class="page-link" href="?page=${currentPage + 1}&keyword=${keyword}">Sau</a></li>
+        </ul>
     </nav>
 </div>
 
-<!-- Main Content -->
-<div class="main-content">
-    <!-- Header -->
-    <div class="page-header">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="mb-1 fw-bold">
-                    <i class="fas fa-list me-2 text-success"></i>
-                    Quản lý Danh mục
-                </h3>
-                <p class="text-muted mb-0">Quản lý danh mục sản phẩm của cửa hàng</p>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                    <i class="fas fa-plus me-2"></i>Thêm danh mục
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Categories Tree -->
-        <div class="col-md-6">
-            <div class="card-custom">
-                <div class="card-header">
-                    <h5 class="mb-0">Cây danh mục</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="category-tree">
-                        <li>
-                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                <div>
-                                    <i class="fas fa-folder text-warning me-2"></i>
-                                    <strong>Cây để bàn</strong>
-                                    <span class="badge bg-secondary ms-2">12 sản phẩm</span>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <ul class="children">
-                                <li>
-                                    <div class="d-flex justify-content-between align-items-center p-2">
-                                        <div>
-                                            <i class="fas fa-folder text-info me-2"></i>
-                                            Cây để bàn làm việc
-                                            <span class="badge bg-secondary ms-2">8 sản phẩm</span>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="d-flex justify-content-between align-items-center p-2">
-                                        <div>
-                                            <i class="fas fa-folder text-info me-2"></i>
-                                            Cây để bàn học
-                                            <span class="badge bg-secondary ms-2">4 sản phẩm</span>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded mt-2">
-                                <div>
-                                    <i class="fas fa-folder text-warning me-2"></i>
-                                    <strong>Cây nội thất</strong>
-                                    <span class="badge bg-secondary ms-2">8 sản phẩm</span>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded mt-2">
-                                <div>
-                                    <i class="fas fa-folder text-warning me-2"></i>
-                                    <strong>Cây phong thủy</strong>
-                                    <span class="badge bg-secondary ms-2">15 sản phẩm</span>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded mt-2">
-                                <div>
-                                    <i class="fas fa-folder text-warning me-2"></i>
-                                    <strong>Sen đá & Xương rồng</strong>
-                                    <span class="badge bg-secondary ms-2">25 sản phẩm</span>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Categories List -->
-        <div class="col-md-6">
-            <div class="card-custom">
-                <div class="card-header">
-                    <h5 class="mb-0">Danh sách danh mục</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                            <tr>
-                                <th>Tên danh mục</th>
-                                <th>Danh mục cha</th>
-                                <th>Số sản phẩm</th>
-                                <th>Trạng thái</th>
-                                <th width="100">Thao tác</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>
-                                    <i class="fas fa-folder text-warning me-2"></i>
-                                    <strong>Cây để bàn</strong>
-                                </td>
-                                <td>-</td>
-                                <td><span class="badge bg-primary">12</span></td>
-                                <td><span class="badge bg-success">Hiển thị</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <i class="fas fa-folder text-info me-2"></i>
-                                    Cây để bàn làm việc
-                                </td>
-                                <td>Cây để bàn</td>
-                                <td><span class="badge bg-primary">8</span></td>
-                                <td><span class="badge bg-success">Hiển thị</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <i class="fas fa-folder text-info me-2"></i>
-                                    Cây để bàn học
-                                </td>
-                                <td>Cây để bàn</td>
-                                <td><span class="badge bg-primary">4</span></td>
-                                <td><span class="badge bg-success">Hiển thị</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <i class="fas fa-folder text-warning me-2"></i>
-                                    <strong>Cây nội thất</strong>
-                                </td>
-                                <td>-</td>
-                                <td><span class="badge bg-primary">8</span></td>
-                                <td><span class="badge bg-success">Hiển thị</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Category Modal -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Thêm danh mục mới</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+            <div class="modal-header"><h5 class="modal-title">Thêm danh mục</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">Tên danh mục *</label>
-                        <input type="text" class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Danh mục cha</label>
-                        <select class="form-select">
-                            <option value="">Không có (danh mục gốc)</option>
-                            <option value="1">Cây để bàn</option>
-                            <option value="2">Cây nội thất</option>
-                            <option value="3">Cây phong thủy</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Mô tả</label>
-                        <textarea class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Slug (URL)</label>
-                        <input type="text" class="form-control">
-                    </div>
-
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="status" checked>
-                        <label class="form-check-label" for="status">Hiển thị danh mục</label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-success">Thêm danh mục</button>
+                <form:form method="post" action="/admin/categories/create" modelAttribute="newCategory">
+                    <div class="mb-3"><label class="form-label">Tên danh mục</label><form:input path="name" class="form-control"/></div>
+                    <div class="mb-3"><label class="form-label">Mô tả</label><form:textarea path="description" class="form-control" rows="3"/></div>
+                    <div class="form-check mb-3"><form:checkbox path="active" class="form-check-input"/><label class="form-check-label">Hiển thị danh mục</label></div>
+                    <button class="btn btn-success w-100">Lưu danh mục</button>
+                </form:form>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Cập nhật danh mục</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <form action="/admin/categories/update" method="post">
+                    <input type="hidden" name="id" id="editCategoryId">
+                    <div class="mb-3"><label class="form-label">Tên danh mục</label><input type="text" class="form-control" name="name" id="editCategoryName"></div>
+                    <div class="mb-3"><label class="form-label">Mô tả</label><textarea class="form-control" rows="3" name="description" id="editCategoryDescription"></textarea></div>
+                    <input type="hidden" name="active" value="false"><div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="active" value="true" id="editCategoryActive"><label class="form-check-label">Hiển thị danh mục</label></div>
+                    <button class="btn btn-success w-100">Cập nhật</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('editCategoryModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        document.getElementById('editCategoryId').value = button.getAttribute('data-id');
+        document.getElementById('editCategoryName').value = button.getAttribute('data-name');
+        document.getElementById('editCategoryDescription').value = button.getAttribute('data-description');
+        document.getElementById('editCategoryActive').checked = button.getAttribute('data-active') === 'true';
+    });
+</script>
 </body>
 </html>

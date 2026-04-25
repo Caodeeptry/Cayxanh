@@ -13,54 +13,21 @@
     <title>Giỏ Hàng - Cây Xanh</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./css/cart.css">
-    <style>
-
-    </style>
+    <link rel="stylesheet" href="<c:url value='/resources/client/css/cart.css'/>">
+    <link rel="stylesheet" href="<c:url value='/resources/client/css/client-shared.css'/>">
+    <link rel="stylesheet" href="<c:url value='/resources/client/css/client-ai.css'/>">
 </head>
 <body>
-<!-- Header -->
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-leaf me-2"></i>TREESHOP
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link " href="./index.html">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="./danhmuc.html">Sản phẩm</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="./chitiet.html">Giới thiệu</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Liên hệ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="./login.html">Đăng nhập/Đăng ký</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link  active" href="./cart.html"><i class="fas fa-shopping-cart"></i></a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-</header>
+<jsp:include page="/WEB-INF/view/common/client-navbar.jsp"><jsp:param name="active" value="cart"/></jsp:include>
+
+
 
 <!-- Breadcrumb -->
 <section class="bg-light py-3">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/client/indexs">Trang chủ</a></li>
                 <li class="breadcrumb-item active">Giỏ hàng</li>
             </ol>
         </nav>
@@ -75,64 +42,55 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="card">
-                    <div class="card-body">
-                        <!-- Cart Item 1 -->
-                        <div class="cart-item d-flex">
-                            <div class="flex-shrink-0">
-                                <img src="./img/kim tien 2.jpg"
-                                     alt="Cây Kim Tiền" class="img-fluid rounded" style="width: 100px;">
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-1">Cây Kim Tiền</h5>
-                                <p class="text-muted mb-2">Cây phong thủy mang lại tài lộc</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <button class="btn btn-sm btn-outline-secondary decrease-qty">-</button>
-                                        <input type="number" class="form-control form-control-sm quantity-input mx-2" value="1" min="1">
-                                        <button class="btn btn-sm btn-outline-secondary increase-qty">+</button>
-                                    </div>
-                                    <div>
-                                        <span class="fw-bold text-success">450.000₫</span>
-                                        <button class="btn btn-sm btn-link text-danger ms-2">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-body" id="cart-items-container">
+                        <c:choose>
+                            <c:when test="${not empty cartItems}">
+                                <c:forEach var="item" items="${cartItems}">
+                                    <div class="cart-item d-flex mb-4" data-product-id="${item.product.id}">
+                                        <div class="flex-shrink-0">
+                                            <img src="/uploads/${item.product.image}"
+                                                 class="img-fluid rounded" alt="${item.product.name}"
+                                                 style="width: 100px; height: 100px ;object-fit: cover;">
+                                        </div>
 
-                        <!-- Cart Item 2 -->
-                        <div class="cart-item d-flex">
-                            <div class="flex-shrink-0">
-                                <img src="./img/luoi ho.jpg"
-                                     alt="Cây Lưỡi Hổ" class="img-fluid rounded" style="width: 100px;">
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-1">Cây Lưỡi Hổ</h5>
-                                <p class="text-muted mb-2">Cây lọc không khí, hấp thụ độc tố</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <button class="btn btn-sm btn-outline-secondary decrease-qty">-</button>
-                                        <input type="number" class="form-control form-control-sm quantity-input mx-2" value="2" min="1">
-                                        <button class="btn btn-sm btn-outline-secondary increase-qty">+</button>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h5 class="mb-1">${item.product.name}</h5>
+                                            <p class="text-muted mb-2">${item.product.shortDesc}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <button class="btn btn-sm btn-outline-secondary decrease-qty">-</button>
+                                                    <input type="number" class="form-control form-control-sm quantity-input mx-2"
+                                                           value="${item.quantity}" min="1" data-product-id="${item.product.id}">
+                                                    <button class="btn btn-sm btn-outline-secondary increase-qty">+</button>
+                                                </div>
+                                                <div>
+                                                    <span class="fw-bold text-success item-total">
+                                                        <fmt:formatNumber value="${item.quantity * item.price}" pattern="#,###"/>₫
+                                                    </span>
+                                                    <button class="btn btn-sm btn-link text-danger ms-2 remove-item"
+                                                            data-product-id="${item.product.id}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="fw-bold text-success">700.000₫</span>
-                                        <button class="btn btn-sm btn-link text-danger ms-2">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="text-center text-muted">Giỏ hàng của bạn đang trống</p>
+                            </c:otherwise>
+                        </c:choose>
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="index.html" class="btn btn-outline-secondary">
+                            <a href="/client/categories" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua hàng
                             </a>
-                            <button class="btn btn-outline-danger" id="clear-cart">
-                                <i class="fas fa-trash me-2"></i>Xóa giỏ hàng
-                            </button>
+                            <c:if test="${not empty cartItems}">
+                                <button class="btn btn-outline-danger" id="clear-cart">
+                                    <i class="fas fa-trash me-2"></i>Xóa giỏ hàng
+                                </button>
+                            </c:if>
                         </div>
                     </div>
                 </div>
@@ -144,24 +102,26 @@
 
                     <div class="d-flex justify-content-between mb-2">
                         <span>Tạm tính:</span>
-                        <span>1.150.000₫</span>
+                        <span id="subtotal-amount"><fmt:formatNumber value="${subtotal}" pattern="#,###"/>₫</span>
                     </div>
 
                     <div class="d-flex justify-content-between mb-2">
                         <span>Giảm giá:</span>
-                        <span class="text-danger">-100.000₫</span>
+                        <span class="text-danger">-<fmt:formatNumber value="${discount}" pattern="#,###"/>₫</span>
                     </div>
 
                     <div class="d-flex justify-content-between mb-2">
                         <span>Phí vận chuyển:</span>
-                        <span>30.000₫</span>
+                        <span><fmt:formatNumber value="${shippingFee}" pattern="#,###"/>₫</span>
                     </div>
 
                     <hr>
 
                     <div class="d-flex justify-content-between mb-3">
                         <strong>Tổng cộng:</strong>
-                        <strong class="text-success">1.080.000₫</strong>
+                        <strong class="text-success" id="total-amount">
+                            <fmt:formatNumber value="${total + shippingFee - discount}" pattern="#,###"/>₫
+                        </strong>
                     </div>
 
                     <div class="mb-3">
@@ -172,9 +132,11 @@
                         </div>
                     </div>
 
-                    <a href="checkout.html" class="btn btn-success w-100 py-3">
-                        <i class="fas fa-shopping-bag me-2"></i>Tiến hành thanh toán
-                    </a>
+                    <c:if test="${not empty cartItems}">
+                        <a href="/client/checkout" class="btn btn-success w-100 py-3">
+                            <i class="fas fa-shopping-bag me-2"></i>Tiến hành thanh toán
+                        </a>
+                    </c:if>
                 </div>
             </div>
         </div>
@@ -182,88 +144,164 @@
 </section>
 
 <!-- Footer -->
-<footer class="bg-dark text-white pt-4 pb-2">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>Về chúng tôi</h5>
-                <p>Cửa hàng cây cảnh Cây Xanh chuyên cung cấp các loại cây cảnh, cây phong thủy, cây văn phòng chất lượng cao.</p>
-            </div>
-            <div class="col-md-4">
-                <h5>Liên hệ</h5>
-                <p><i class="fas fa-map-marker-alt me-2"></i> Lập Thạch, Vĩnh Phúc</p>
-                <p><i class="fas fa-phone me-2"></i> 09878 917 562/p>
-                <p><i class="fas fa-envelope me-2"></i> caodozett@gmail.com</p>
-            </div>
-            <div class="col-md-4">
-                <h5>Theo dõi chúng tôi</h5>
-                <div class="d-flex">
-                    <a href="#" class="me-3 text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
-                    <a href="#" class="me-3 text-white"><i class="fab fa-instagram fa-lg"></i></a>
-                    <a href="#" class="me-3 text-white"><i class="fab fa-youtube fa-lg"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-tiktok fa-lg"></i></a>
-                </div>
-                <div class="mt-3">
-                    <h5>Đăng ký nhận tin</h5>
-                    <div class="input-group">
-                        <input type="email" class="form-control" placeholder="Email của bạn">
-                        <button class="btn btn-success" type="button">Đăng ký</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <hr class="mt-4 bg-light">
-        <div class="text-center">
-            <p>&copy; Treeshop made by vancao.</p>
-        </div>
-    </div>
-</footer>
-
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<c:url value='/resources/client/js/client-shop.js'/>"></script>
 <script>
     $(document).ready(function() {
-        // Xử lý tăng/giảm số lượng
-        $('.increase-qty').click(function() {
+        // Xử lý tăng số lượng
+        $(document).on('click', '.increase-qty', function() {
             const input = $(this).siblings('.quantity-input');
-            input.val(parseInt(input.val()) + 1);
-            updateCartTotal();
+            const newQuantity = parseInt(input.val()) + 1;
+            input.val(newQuantity);
+            updateQuantity(input.data('product-id'), newQuantity);
         });
 
-        $('.decrease-qty').click(function() {
+        // Xử lý giảm số lượng
+        $(document).on('click', '.decrease-qty', function() {
             const input = $(this).siblings('.quantity-input');
-            if (parseInt(input.val()) > 1) {
-                input.val(parseInt(input.val()) - 1);
-                updateCartTotal();
+            const currentQuantity = parseInt(input.val());
+            if (currentQuantity > 1) {
+                const newQuantity = currentQuantity - 1;
+                input.val(newQuantity);
+                updateQuantity(input.data('product-id'), newQuantity);
+            }
+        });
+
+        // Xử lý thay đổi số lượng trực tiếp
+        $(document).on('change', '.quantity-input', function() {
+            const quantity = parseInt($(this).val());
+            if (quantity >= 1) {
+                updateQuantity($(this).data('product-id'), quantity);
+            } else {
+                $(this).val(1);
             }
         });
 
         // Xử lý xóa sản phẩm
-        $('.btn-link.text-danger').click(function() {
-            $(this).closest('.cart-item').remove();
-            updateCartCount();
-            updateCartTotal();
+        $(document).on('click', '.remove-item', function() {
+            const productId = $(this).data('product-id');
+            removeFromCart(productId);
         });
 
         // Xóa toàn bộ giỏ hàng
         $('#clear-cart').click(function() {
-            $('.cart-item').remove();
-            updateCartCount();
-            updateCartTotal();
+            if (confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
+                // Lấy tất cả productId và xóa lần lượt
+                $('.remove-item').each(function() {
+                    const productId = $(this).data('product-id');
+                    removeFromCart(productId, false);
+                });
+                location.reload(); // Reload trang sau khi xóa hết
+            }
         });
 
-        // Cập nhật số lượng sản phẩm trong giỏ
-        function updateCartCount() {
-            const count = $('.cart-item').length;
-            $('.cart-count').text(count);
+        function updateQuantity(productId, quantity) {
+            $.ajax({
+                url: '/client/cart/update',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: quantity
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Cập nhật tổng tiền
+                        $('#subtotal-amount').text(formatCurrency(response.total));
+                        $('#total-amount').text(formatCurrency(response.total + 30000)); // + shipping fee
+
+                        // Cập nhật tổng tiền của item
+                        $(`.cart-item[data-product-id="${productId}"] .item-total`)
+                            .text(formatCurrency(quantity * getItemPrice(productId)));
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Lỗi cập nhật số lượng!');
+                }
+            });
         }
 
-        // Cập nhật tổng tiền (đơn giản)
-        function updateCartTotal() {
-            // Logic tính tổng tiền thực tế sẽ phức tạp hơn
-            alert('Đã cập nhật số lượng sản phẩm!');
+        function removeFromCart(productId, reload = true) {
+            $.ajax({
+                url: '/client/cart/remove',
+                type: 'POST',
+                data: {
+                    productId: productId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(`.cart-item[data-product-id="${productId}"]`).remove();
+
+                        // Cập nhật tổng tiền
+                        $('#subtotal-amount').text(formatCurrency(response.total));
+                        $('#total-amount').text(formatCurrency(response.total + 30000));
+
+                        // Cập nhật số lượng giỏ hàng
+                        updateCartBadge(response.cartItemCount);
+
+                        // Kiểm tra nếu giỏ hàng trống
+                        if ($('.cart-item').length === 0) {
+                            $('#cart-items-container').html('<p class="text-center text-muted">Giỏ hàng của bạn đang trống</p>');
+                            $('#clear-cart').hide();
+                            $('.btn-success[href="/client/checkout"]').parent().hide();
+                        }
+
+                        if (reload) {
+                            showSuccessAlert('Đã xóa sản phẩm khỏi giỏ hàng');
+                        }
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Lỗi xóa sản phẩm!');
+                }
+            });
+        }
+
+        function getItemPrice(productId) {
+            // Lấy giá từ item (trong thực tế nên lấy từ data attribute)
+            const priceText = $(`.cart-item[data-product-id="${productId}"] .item-total`).text();
+            return parseFloat(priceText.replace(/[^\d]/g, '')) /
+                parseInt($(`.cart-item[data-product-id="${productId}"] .quantity-input`).val());
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount) + '₫';
+        }
+
+        function updateCartBadge(count) {
+            $('.cart-badge').text(count);
+        }
+
+        function showSuccessAlert(message) {
+            const toast = $(`
+                <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                    <div class="toast show" role="alert">
+                        <div class="toast-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong class="me-auto">Thành công</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            $('body').append(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
         }
     });
 </script>
+<jsp:include page="/WEB-INF/view/common/client-footer.jsp" />
+<jsp:include page="/WEB-INF/view/common/client-assistant.jsp" />
+<script src="<c:url value='/resources/client/js/client-ai.js'/>"></script>
 </body>
 </html>
